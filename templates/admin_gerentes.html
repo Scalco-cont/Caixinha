@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Gerentes — Scalco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-container { padding: 20px; max-width: 900px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        .btn { padding: 8px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; color: #fff; }
+        .btn-add { background: #28a745; }
+        .btn-edit { background: #ffc107; color: #000; }
+        .btn-delete { background: #dc3545; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">Gerenciar Gerentes</div>
+        <div class="header-right">
+            <a href="/admin_dashboard" class="manual-btn">Voltar para Painel Admin</a>
+        </div>
+    </div>
+    
+    <div class="page-wrapper">
+        <div class="admin-container">
+            <h2>Adicionar Gerente</h2>
+            <form method="POST" action="/admin/gerentes">
+                <input type="hidden" name="action" value="add">
+                <div class="form-group"><label>Nome</label><input type="text" name="nome" required></div>
+                <div class="form-group"><label>Letra (Ex: S)</label><input type="text" name="letra" required maxlength="1"></div>
+                <div class="form-group"><label>Senha da Aba</label><input type="text" name="senha" required></div>
+                <div class="form-group"><label>Caminho de Rede (Ex: \\sv-scalco\Sistemas\CAIXINHA\SANDRA\OK)</label><input type="text" name="caminho_pasta" required></div>
+                <button type="submit" class="btn btn-add">Adicionar Gerente</button>
+            </form>
+
+            <h2 style="margin-top: 40px;">Gerentes Cadastradas</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th><th>Letra</th><th>Senha</th><th>Caminho</th><th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for g in gerentes %}
+                    <tr data-id="{{ g.id }}">
+                        <td><input type="text" class="g-nome" value="{{ g.nome }}" required></td>
+                        <td><input type="text" class="g-letra" value="{{ g.letra }}" required maxlength="1" style="width: 40px;"></td>
+                        <td><input type="text" class="g-senha" value="{{ g.senha }}" required></td>
+                        <td><input type="text" class="g-caminho" value="{{ g.caminho_pasta }}" required style="font-size: 12px; width: 100%;"></td>
+                        <td>
+                            <button type="button" class="btn btn-edit" onclick="salvarGerente(this)">Salvar</button>
+                            <button type="button" class="btn btn-delete" onclick="excluirGerente(this, '{{ g.nome }}')">Excluir</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+function salvarGerente(btn) {
+    const row = btn.closest('tr');
+    const id = row.dataset.id;
+    const nome = row.querySelector('.g-nome').value.trim();
+    const letra = row.querySelector('.g-letra').value.trim();
+    const senha = row.querySelector('.g-senha').value.trim();
+    const caminho = row.querySelector('.g-caminho').value.trim();
+
+    if (!nome || !letra || !senha || !caminho) {
+        alert('Preencha todos os campos antes de salvar.');
+        return;
+    }
+
+    const fd = new FormData();
+    fd.append('action', 'edit');
+    fd.append('id', id);
+    fd.append('nome', nome);
+    fd.append('letra', letra);
+    fd.append('senha', senha);
+    fd.append('caminho_pasta', caminho);
+
+    const original = btn.textContent;
+    btn.textContent = 'Salvando...';
+    btn.disabled = true;
+
+    fetch('/admin/gerentes', { method: 'POST', body: fd })
+        .then(res => {
+            if (res.ok || res.redirected) {
+                btn.textContent = '✓ Salvo!';
+                btn.style.background = '#28a745';
+                btn.style.color = '#fff';
+                setTimeout(() => {
+                    btn.textContent = original;
+                    btn.disabled = false;
+                    btn.style.background = '';
+                    btn.style.color = '#000';
+                }, 2500);
+            } else {
+                alert('Erro ao salvar. Verifique se a letra/nome não está duplicada.');
+                btn.textContent = original;
+                btn.disabled = false;
+            }
+        })
+        .catch(() => {
+            alert('Erro de conexão ao salvar.');
+            btn.textContent = original;
+            btn.disabled = false;
+        });
+}
+
+function excluirGerente(btn, nome) {
+    if (!confirm('Excluir ' + nome + '? Esta ação não pode ser desfeita.')) return;
+    const row = btn.closest('tr');
+    const id = row.dataset.id;
+
+    const fd = new FormData();
+    fd.append('action', 'delete');
+    fd.append('id', id);
+
+    fetch('/admin/gerentes', { method: 'POST', body: fd })
+        .then(() => location.reload())
+        .catch(() => alert('Erro ao excluir.'));
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrador — Scalco</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-dashboard {
+            max-width: 800px; margin: 40px auto; padding: 20px;
+            background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .admin-dashboard h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .dashboard-links { display: flex; flex-direction: column; gap: 15px; }
+        .dash-btn {
+            display: inline-block; padding: 15px 20px;
+            background: #f4f4f4; border: 1px solid #ddd;
+            border-radius: 6px; text-decoration: none; color: #333;
+            font-weight: bold; font-size: 16px; transition: all 0.2s;
+        }
+        .dash-btn:hover { background: #e9e9e9; border-color: #ccc; }
+        .dash-btn span { display: block; font-size: 12px; font-weight: normal; color: #666; margin-top: 5px; }
+        .dash-danger { border-left: 4px solid #dc3545; }
+        .dash-primary { border-left: 4px solid #0056b3; }
+        .dash-success { border-left: 4px solid #28a745; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">Scalco Contabilidade</div>
+        <div class="header-right">
+            <a href="/" class="manual-btn">Voltar para Home</a>
+        </div>
+    </div>
+    
+    <div class="page-wrapper">
+        <div class="admin-dashboard">
+            <h1>Painel de Administração Global</h1>
+            <p style="margin-bottom: 20px; color: #555;">Bem-vindo ao painel de administração. Escolha uma opção abaixo:</p>
+            
+            <div class="dashboard-links">
+                <a href="/checklist/admin" class="dash-btn dash-primary">
+                    ⚙ Gerenciar Empresas do Checklist
+                    <span>Adicionar, editar, remover ou importar empresas da planilha</span>
+                </a>
+                
+                <a href="/admin/gerentes" class="dash-btn dash-success">
+                    👥 Gerenciar Gerentes
+                    <span>Adicionar ou remover gerentes, editar senhas e configurar caminhos de rede</span>
+                </a>
+                
+                <a href="/admin/revisores" class="dash-btn dash-success" style="border-left-color: #17a2b8;">
+                    👀 Gerenciar Revisores
+                    <span>Adicionar ou remover revisores, editar senhas, pasta destino e pasta de anexos</span>
+                </a>
+                
+                <a href="#" class="dash-btn dash-danger" onclick="resetBaixas()">
+                    ↺ Resetar Lista de Baixas (Ciclo Mensal)
+                    <span>Apaga todas as baixas e inicia um novo ciclo de controle</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function resetBaixas() {
+            if (confirm('ATENÇÃO: Tem certeza que deseja resetar TODAS as baixas do sistema e iniciar um novo ciclo? Esta ação não pode ser desfeita.')) {
+                fetch('/checklist/reset', {method:'POST'})
+                .then(r=>r.json())
+                .then(data => {
+                    if (data.success) { alert('Lista resetada com sucesso.'); }
+                    else alert('Erro ao resetar: ' + data.message);
+                }).catch(() => alert('Erro de comunicação com o servidor.'));
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: scalco_sistema
+    restart: unless-stopped
+    ports:
+      # O Dockerfile expõe a porta 5000, mas o app.py roda na 5001. 
+      # Aqui estamos mapeando a porta 5001 externa para a 5001 interna.
+      - "5001:5001"
+    volumes:
+      # MAPEAMENTO DO BANCO DE DADOS (SQLite):
+      # Como o Coolify recria o container a cada atualização, usamos um "Volume Nomeado"
+      # para garantir que os dados do banco não se percam!
+      - scalco_db_data:/app/data
+      
+      # MAPEAMENTO DAS PASTAS DE REDE (\\sv-scalco\...):
+      # Montamos as pastas no servidor Linux e aqui mapeamos para o container:
+      - /sv-scalco/Sistemas:/sv-scalco/Sistemas
+      - /sv-scalco/Trabalho:/sv-scalco/Trabalho
+    
+    environment:
+      - TZ=America/Cuiaba # Ajustado para o fuso horário do Mato Grosso!
+      - DB_PATH=/app/data/scalco.db # Diz para o Python salvar o banco na pasta persistente
+
+# Declaração do volume nomeado para o banco de dados
+volumes:
+  scalco_db_data:
+    name: scalco_db_data

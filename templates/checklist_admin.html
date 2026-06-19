@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Checklist - Scalco Contabilidade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .admin-container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .empresas-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .empresas-table th, .empresas-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .empresas-table th {
+            background-color: #f4f4f4;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background-color: #c82333;
+        }
+        
+        .btn-delete-selected {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .btn-delete-selected:hover {
+            background-color: #c82333;
+        }
+
+        .btn-delete-selected.visible {
+            display: inline-block;
+        }
+
+        .select-all-row th {
+            background-color: #eaf0fb;
+        }
+
+        .import-result {
+            padding: 14px 18px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            background: #d1f5d3;
+            border-left: 5px solid #28a745;
+            color: #155724;
+        }
+
+        .import-result span {
+            margin-right: 18px;
+        }
+
+        .import-result .ign {
+            color: #856404;
+        }
+
+        .format-box {
+            background: #f0f8ff;
+            border-left: 4px solid #007bff;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .format-box code {
+            background: #e8f0fe;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">Scalco Contabilidade - Admin Checklist</div>
+        <div class="header-right" style="display: flex; gap: 10px;">
+            <a href="/admin_dashboard" class="manual-btn">Voltar para Painel Admin</a>
+            <a href="/logout" class="manual-btn">Sair</a>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <h2>Adicionar Nova Empresa</h2>
+        <form method="POST" action="/checklist/admin">
+            <div class="form-group">
+                <label for="numero">Número</label>
+                <input type="text" id="numero" name="numero" required placeholder="Ex: 403, 001">
+            </div>
+            <div class="form-group">
+                <label for="nome">Nome da Empresa</label>
+                <input type="text" id="nome" name="nome" required placeholder="Ex: NOME EMPRESA LTDA">
+            </div>
+            <div class="form-group">
+                <label for="gerente">Gerente Responsável</label>
+                <select id="gerente" name="gerente" required>
+                    <option value="">Selecione...</option>
+                    {% for g_nome in gerentes_nomes %}
+                    <option value="{{ g_nome }}">{{ g_nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cnpj">CNPJ (Opcional)</label>
+                <input type="text" id="cnpj" name="cnpj" placeholder="Ex: 00.000.000/0000-00">
+            </div>
+            <div class="form-group">
+                <label for="inscricao">Inscrição Estadual (Opcional)</label>
+                <input type="text" id="inscricao" name="inscricao" placeholder="Ex: 123.456.789.000">
+            </div>
+            <div class="form-group">
+                <label for="tributacao">Tributação (Opcional)</label>
+                <input type="text" id="tributacao" name="tributacao" placeholder="Ex: Simples Nacional">
+            </div>
+            <button type="submit" class="btn-submit">Adicionar Empresa</button>
+        </form>
+
+        <h2 style="margin-top: 40px;">Importar em Lote (CSV)</h2>
+
+        {% if import_resultado %}
+        <div class="import-result">
+            <span>✅ <strong>{{ import_resultado.inseridos }}</strong> inserida(s)</span>
+            <span>🔄 <strong>{{ import_resultado.atualizados }}</strong> atualizada(s)</span>
+            <span class="ign">⏭️ <strong>{{ import_resultado.ignorados }}</strong> ignorada(s)</span>
+        </div>
+        {% endif %}
+
+        {% if import_log %}
+
+        {% if import_log.ignorados %}
+        <details style="margin-bottom:10px;">
+            <summary style="cursor:pointer;background:#fff3cd;border-left:4px solid #ffc107;padding:10px 14px;border-radius:4px;font-weight:bold;color:#856404;">
+                ⏭️ {{ import_log.ignorados|length }} linha(s) IGNORADA(S) — clique para ver
+            </summary>
+            <table class="empresas-table" style="margin-top:6px;font-size:12px;">
+                <thead><tr><th>#Linha</th><th>Motivo</th><th>Conteúdo original</th></tr></thead>
+                <tbody>
+                {% for item in import_log.ignorados %}
+                <tr>
+                    <td style="white-space:nowrap;">{{ item.linha }}</td>
+                    <td style="color:#c0392b;white-space:nowrap;">{{ item.motivo }}</td>
+                    <td style="font-family:monospace;font-size:11px;word-break:break-all;">{{ item.raw }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </details>
+        {% endif %}
+
+        {% endif %}
+
+        <div class="format-box">
+            <strong>Formato aceito</strong> — separador: <code>vírgula (,)</code><br>
+            <code>Letra;Número;Nome da Empresa;CNPJ ou CPF;Inscrição Estadual;Tributação</code><br>
+            O sufixo do número é removido automaticamente: <code>99-1 → 99</code>, <code>99-2 → 99</code><br>
+            Linhas sem gerente (letra em branco) ou sem nome são ignoradas.<br>
+            <strong>Letras:</strong> S = Sandra &nbsp;|&nbsp; A = Adriana &nbsp;|&nbsp; R = Rose &nbsp;|&nbsp; V = Volmar
+        </div>
+
+        <form method="POST" action="/checklist/admin/import">
+            <div class="form-group">
+                <label for="csv_data">Cole os dados aqui (uma empresa por linha):</label>
+                <textarea id="csv_data" name="csv_data" rows="8"
+                    placeholder="S,99-1,EMPRESA ALFA LTDA,12.345.678/0001-90,123.456.789,Simples Nacional&#10;A,85-1,EMPRESA BETA ME,98.765.432/0001-10,ISENTO,Lucro Presumido&#10;,30-1,SEM GERENTE - SERA IGNORADA,11.111.111/0001-00,,Simples Nacional"
+                    style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: monospace; font-size: 12px; box-sizing: border-box;"></textarea>
+            </div>
+            <button type="submit" class="btn-submit" style="background-color: #007bff;">📥 Importar Lista</button>
+        </form>
+
+        <h2 style="margin-top: 40px;">Empresas Cadastradas</h2>
+
+        <form id="form-delete-selected" method="POST" action="/checklist/admin/delete-multiple" onsubmit="return confirmarExclusao()">
+            <button type="submit" id="btn-delete-selected" class="btn-delete-selected">🗑️ Excluir Selecionadas (<span id="count-selected">0</span>)</button>
+
+            <table class="empresas-table" style="margin-top: 10px;">
+                <thead>
+                    <tr class="select-all-row">
+                        <th><input type="checkbox" id="select-all" title="Selecionar todas"></th>
+                        <th>Número</th>
+                        <th>Nome</th>
+                        <th>Gerente</th>
+                        <th>CNPJ</th>
+                        <th>Inscrição</th>
+                        <th>Tributação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in empresas %}
+                    <tr>
+                        <td><input type="checkbox" name="ids" value="{{ emp.id }}" class="row-checkbox"></td>
+                        <td>{{ emp.numero }}</td>
+                        <td>{{ emp.nome }}</td>
+                        <td>{{ emp.gerente }}</td>
+                        <td>{{ emp.cnpj }}</td>
+                        <td>{{ emp.inscricao_estadual }}</td>
+                        <td>{{ emp.tributacao }}</td>
+                        <td>
+                            <button type="button" class="btn-delete" data-id="{{ emp.id }}" onclick="excluirUnico(this.getAttribute('data-id'))">Excluir</button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">Nenhuma empresa cadastrada.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </form>
+    </div>
+
+    <script>
+        const selectAll = document.getElementById('select-all');
+        const btnDelete = document.getElementById('btn-delete-selected');
+        const countSpan = document.getElementById('count-selected');
+
+        function atualizarBotao() {
+            const marcados = document.querySelectorAll('.row-checkbox:checked');
+            const total = marcados.length;
+            countSpan.textContent = total;
+            if (total > 0) {
+                btnDelete.classList.add('visible');
+            } else {
+                btnDelete.classList.remove('visible');
+            }
+        }
+
+        selectAll.addEventListener('change', function () {
+            document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = this.checked);
+            atualizarBotao();
+        });
+
+        document.querySelectorAll('.row-checkbox').forEach(cb => {
+            cb.addEventListener('change', function () {
+                const total = document.querySelectorAll('.row-checkbox').length;
+                const marcados = document.querySelectorAll('.row-checkbox:checked').length;
+                selectAll.checked = marcados === total;
+                selectAll.indeterminate = marcados > 0 && marcados < total;
+                atualizarBotao();
+            });
+        });
+
+        function confirmarExclusao() {
+            const total = document.querySelectorAll('.row-checkbox:checked').length;
+            if (total === 0) {
+                alert('Selecione ao menos uma empresa para excluir.');
+                return false;
+            }
+            return confirm('Deseja realmente excluir ' + total + ' empresa(s) selecionada(s)?');
+        }
+
+        function excluirUnico(id) {
+            if (confirm('Deseja realmente excluir esta empresa?')) {
+                const f = document.createElement('form');
+                f.method = 'POST';
+                f.action = '/checklist/admin/delete/' + id;
+                document.body.appendChild(f);
+                f.submit();
+            }
+        }
+    </script>
+
+</body>
+</html>

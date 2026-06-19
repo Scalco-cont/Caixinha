@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Baixas — Scalco Contabilidade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/checklist.css') }}?v=8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Mensagem flutuante -->
+    <div id="message"></div>
+
+    <!-- Modal de rejeição -->
+    <div id="modal-rejeicao">
+        <div class="modal-box">
+            <h3>❌ Rejeitar Lançamento</h3>
+            <input type="hidden" id="modal-empresa-id">
+            <label>Motivo da rejeição (opcional)</label>
+            <textarea id="modal-motivo" placeholder="Descreva o que precisa ser corrigido..."></textarea>
+            <div class="modal-file-wrap">
+                <label>Enviar PDF anotado com correções (opcional)</label>
+                <input type="file" id="modal-arquivo" accept=".pdf">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+                <button class="btn-confirmar-rej" onclick="confirmarRejeicao()">Confirmar Rejeição</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de encaminhamento para revisor -->
+    <div id="modal-encaminhar">
+        <div class="modal-box">
+            <h3>📤 Encaminhar para Revisão</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:4px;">Selecione quem deve revisar este lançamento:</p>
+            <input type="hidden" id="enc-empresa-id">
+            <div class="revisor-btns" id="enc-revisores-btns">
+                <!-- preenchido via JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancelar" onclick="fecharModalEnc()">Cancelar</button>
+                <button class="btn-confirmar-rej" style="background:#28a745;" onclick="confirmarEncaminhar()">Encaminhar
+                    ✓</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header padrão do sistema -->
+    <div class="header">
+        <div class="header-title">Scalco Contabilidade</div>
+        <div class="header-right">
+            <a href="/" class="manual-btn">Home</a>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+
+        <!-- Barra de controles -->
+        <div class="controls-bar">
+            <h1>Painel de Baixas — <span>Checklist SPED</span></h1>
+            <div class="controls-right">
+                <!-- Admin options moved to admin_dashboard.html -->
+            </div>
+        </div>
+
+        <!-- Abas -->
+        <div class="tabs-bar" id="main-tabs-bar">
+            <button class="tab-btn active" id="tab-baixas-btn" onclick="trocarAba('baixas')">📋 Baixas</button>
+            <button class="tab-btn" id="tab-conferencia-btn" onclick="trocarAba('conferencia')">🔍 Conferência de
+                Lançamentos</button>
+            <button class="tab-btn" id="tab-revisao-btn" onclick="trocarAba('revisao')" style="display: none;">✅ Revisão
+                Final</button>
+        </div>
+
+        <!-- ============ ABA: BAIXAS (com login por senha de gerente) ============ -->
+        <div class="tab-panel active" id="tab-baixas">
+
+            <!-- Login de gerente (por senha, salva no localStorage) -->
+            <div id="baixas-login-panel">
+                <h2>🔒 Área de Baixas</h2>
+                <p>Selecione sua gerência e insira a senha para acessar</p>
+                <div class="baixas-gerente-btns" id="baixas-gerente-btns-container">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="baixas-senha-row">
+                    <input type="password" id="baixas-senha" placeholder="Senha..."
+                        onkeydown="if(event.key==='Enter') baixasLogin()">
+                </div>
+                <button id="baixas-btn-entrar" onclick="baixasLogin()">Entrar</button>
+                <p id="baixas-erro">Senha incorreta ou gerência não selecionada.</p>
+            </div>
+
+            <!-- Painel principal após login -->
+            <div id="baixas-main">
+                <div class="baixas-header-bar">
+                    <div>
+                        <h2>📋 Painel de Baixas</h2>
+                        <span id="baixas-subtitulo">—</span>
+                        <input type="text" id="search-baixas" placeholder="Buscar número ou nome..."
+                            oninput="renderView()"
+                            style="margin-left: 15px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; width: 200px;">
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="pagination-controls"
+                            style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <label
+                                style="font-size:13px;display:flex;align-items:center;gap:5px;cursor:pointer;font-weight:bold;color:#333;">
+                                <input type="checkbox" id="showOnlyBaixadas" onchange="toggleBaixadas()"> Somente com
+                                Baixa
+                            </label>
+                            <select id="itemsPerPage" onchange="changeItemsPerPage()"
+                                style="padding:6px;border-radius:4px;border:1px solid #ccc;font-size:13px;">
+                                <option value="10">10 por página</option>
+                                <option value="20">20 por página</option>
+                                <option value="50">50 por página</option>
+                                <option value="0">Ver todas</option>
+                            </select>
+                            <button onclick="prevPage()" class="btn-admin" style="padding:5px 10px;">« Anterior</button>
+                            <span id="pageInfo" style="font-weight:bold;font-size:13px;color:#333;">Página 1</span>
+                            <button onclick="nextPage()" class="btn-admin" style="padding:5px 10px;">Próxima »</button>
+                        </div>
+                        <button class="btn-baixas-sair" onclick="baixasLogout()">Trocar Gerência</button>
+                    </div>
+                </div>
+
+                <div class="checklist-grid">
+                    <div class="manager-card" id="card-baixas-gerente">
+                        <div class="manager-card-header">
+                            <h2 id="baixas-gerente-nome">—</h2>
+                            <span class="badge" id="badge-baixas">—</span>
+                        </div>
+                        <div class="manager-card-body">
+                            <ul class="company-list" id="list-baixas">
+                                <li class="empty-state">Carregando...</li>
+                            </ul>
+                        </div>
+                        <div class="card-footer" id="footer-baixas">&nbsp;</div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /tab-baixas -->
+
+        <!-- ============ ABA: CONFERÊNCIA ============ -->
+        <div class="tab-panel" id="tab-conferencia">
+
+            <!-- Login de gerente (por senha, salva no localStorage) -->
+            <div id="conf-login-panel">
+                <h2>🔒 Área de Conferência</h2>
+                <p>Selecione sua gerência e insira a senha para acessar</p>
+                <div class="conf-gerente-btns" id="conf-gerente-btns-container">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="conf-senha-row">
+                    <input type="password" id="conf-senha" placeholder="Senha..."
+                        onkeydown="if(event.key==='Enter') confLogin()">
+                </div>
+                <button id="conf-btn-entrar" onclick="confLogin()">Entrar na Conferência</button>
+                <p id="conf-erro">Senha incorreta ou gerência não selecionada.</p>
+            </div>
+
+            <!-- Painel principal após login -->
+            <div id="conf-main">
+                <div class="conf-header-bar">
+                    <div>
+                        <h2>📋 Lançamentos para Conferência</h2>
+                        <span id="conf-subtitulo">—</span>
+                        <input type="text" id="search-conf" placeholder="Buscar número ou nome..."
+                            oninput="renderConferencia()"
+                            style="margin-left: 15px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; width: 200px;">
+                    </div>
+                    <button class="btn-conf-sair" onclick="confLogout()">Trocar Gerência</button>
+                </div>
+                <div id="conf-lista"></div>
+
+                <!-- Visão Geral da Revisão — exclusivo para gerentes logadas -->
+                <div id="conf-visao-geral" style="margin-top:40px; border-top:2px solid #e0e0e0; padding-top:22px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                        <h2 style="font-size:16px;font-weight:bold;color:#343a40;cursor:pointer;user-select:none;"
+                            onclick="toggleVisaoGeral()">
+                            <span id="vg-toggle-icon">▼</span> 📊 Visão Geral da Revisão
+                        </h2>
+                        <button class="btn-admin" style="font-size:12px;padding:6px 14px;"
+                            onclick="carregarVisaoGeral()">↻ Atualizar</button>
+                    </div>
+                    <div id="conf-vg-lista">
+                        <p style="color:#aaa;font-size:13px;">Carregando...</p>
+                    </div>
+                </div>
+            </div>
+
+        <!-- VIEW: Formulário de Conferência Interativo com PDF -->
+            <div id="view-conf-form" style="display: none; padding: 20px;">
+                <div class="wizard-panel" style="background:#fff; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,0.1); padding:20px; border-top: 4px solid #f39c12;">
+                    <div class="wizard-header" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:15px; margin-bottom:20px;">
+                        <div>
+                            <div class="wizard-title" id="conf-empresa-nome-title" style="font-size:18px; font-weight:bold; color:#333;">Nome da Empresa</div>
+                            <div class="wizard-subtitle" style="font-size:13px; color:#666; margin-top:5px;">Modo de Conferência: Verifique o documento. Se necessário, edite os campos diretamente.</div>
+                        </div>
+                        <button type="button" class="btn-cancelar" style="padding:8px 16px; background:#f1f1f1; border:1px solid #ccc; border-radius:4px; cursor:pointer;" onclick="voltarConfLista()">Voltar para a Lista</button>
+                    </div>
+
+                    <div class="pdf-viewer-wrapper" style="text-align:center; background:#f8f9fa; padding:20px; border-radius:8px; border:1px solid #e0e0e0;">
+                        <!-- Barra de Zoom -->
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px;">
+                            <button type="button" onclick="ajustarZoomConf(-0.2)" style="width:32px; height:32px; font-size:18px; font-weight:bold; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; line-height:1;">&#8722;</button>
+                            <span id="zoom-label-conf" style="font-size:13px; font-weight:bold; color:#444; min-width:45px; text-align:center;">130%</span>
+                            <button type="button" onclick="ajustarZoomConf(0.2)" style="width:32px; height:32px; font-size:18px; font-weight:bold; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; line-height:1;">&#43;</button>
+                            <button type="button" onclick="resetarZoomConf()" style="padding:5px 12px; font-size:12px; border:1px solid #ccc; border-radius:4px; background:#eee; cursor:pointer;">Resetar</button>
+                        </div>
+                        <div id="loading-pdf-conf" style="padding: 50px; color: #666; font-weight: bold; text-align: center;">Carregando documento para conferência...</div>
+                        <div id="pdf-container-conf" style="display: none; margin:0 auto; width: 100%; max-height: 70vh; overflow-y: auto; overflow-x: auto; padding: 15px; background: #e9ecef; border: 1px solid #ccc; border-radius: 6px;">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; margin-top: 20px; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div>
+                            <button class="btn-rejeitado" onclick="abrirModalRejeitarConf()" style="background:#dc3545; color:#fff; border:none; padding: 10px 20px; font-size: 14px; border-radius:4px; cursor:pointer; font-weight:bold;">❌ Rejeitar Lançamento</button>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" id="btn-salvar-edicao-conf" onclick="salvarEdicaoConfPdfOnly()" style="background:#ff9500; color:#fff; border:none; padding: 10px 20px; font-weight: bold; border-radius:4px; cursor:pointer;">💾 Salvar Alterações (Sem Aprovar)</button>
+                            <button type="button" id="btn-conferido-conf" onclick="conferirEdicaoAprovar()" style="background:#28a745; color:#fff; border:none; padding: 10px 25px; font-size: 15px; border-radius:4px; cursor:pointer; font-weight:bold;">✅ Salvar e Conferido</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /tab-conferencia -->
+
+        <!-- ============ ABA: REVISÃO FINAL ============ -->
+        <div class="tab-panel" id="tab-revisao">
+
+            <!-- Login de revisor -->
+            <div id="rev-login-panel">
+                <h2>🔒 Área de Revisão Final</h2>
+                <p>Selecione seu nome e insira a senha para acessar</p>
+                <div class="rev-revisor-btns" id="rev-revisor-btns-container">
+                    <!-- Loaded via JS -->
+                </div>
+                <div class="rev-senha-row">
+                    <input type="password" id="rev-senha" placeholder="Senha..."
+                        onkeydown="if(event.key==='Enter') revLogin()">
+                </div>
+                <button id="rev-btn-entrar" onclick="revLogin()">Entrar na Revisão</button>
+                <p id="rev-erro">Senha incorreta ou nome não selecionado.</p>
+            </div>
+
+            <!-- Painel principal após login -->
+            <div id="rev-main">
+                <div class="rev-header-bar">
+                    <div>
+                        <h2>✅ Lançamentos para Revisão Final</h2>
+                        <span id="rev-subtitulo">—</span>
+                        <input type="text" id="search-rev" placeholder="Buscar número ou nome..."
+                            oninput="renderRevisao()"
+                            style="margin-left: 15px; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; width: 200px;">
+                    </div>
+                    <button class="btn-rev-sair" onclick="revLogout()">Trocar Revisor</button>
+                </div>
+                <div id="rev-lista"></div>
+            </div>
+
+        </div><!-- /tab-revisao -->
+
+    </div><!-- /page-wrapper -->
+
+
+    <script src="{{ url_for('static', filename='js/checklist.js') }}?v=8"></script>
+</body>
+
+</html>
