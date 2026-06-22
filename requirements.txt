@@ -2,3 +2,4 @@ Flask
 watchdog
 pypdf>=4.0.0
 reportlab
+gunicorn==22.0.0
