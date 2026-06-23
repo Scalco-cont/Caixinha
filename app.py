@@ -69,6 +69,22 @@ def get_gerentes_nomes():
 # Configuração do banco de dados
 DATABASE = os.environ.get('DB_PATH', 'scalco.db')
 
+DATA_DIR = os.path.dirname(DATABASE)
+if not DATA_DIR:
+    DATA_DIR = os.path.dirname(os.path.abspath(__file__))
+
+PASTA_PENDENTES = os.path.join(DATA_DIR, 'pendentes')
+PASTA_REJEICOES = os.path.join(DATA_DIR, 'rejeicoes')
+
+def mover_arquivo(origem, destino):
+    """Move um arquivo garantindo que não vai dar PermissionError ao copiar estatísticas (chown/chmod) para o CIFS."""
+    if os.path.exists(origem):
+        shutil.copy(origem, destino)
+        try:
+            os.remove(origem)
+        except Exception:
+            pass
+
 def init_db():
     try:
         with sqlite3.connect(DATABASE) as conn:
@@ -892,7 +908,7 @@ def lancamento_finalizar():
         nome_seguro = re.sub(r'[^a-zA-Z0-9]', '', nome_empresa.replace(' ', ''))
         nome_arquivo = f"{letra} - {numero} - {nome_seguro}_{timestamp}_Unido.pdf"
 
-        pasta_pendentes = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'pendentes')
+        pasta_pendentes = PASTA_PENDENTES
         os.makedirs(pasta_pendentes, exist_ok=True)
         caminho_saida = os.path.join(pasta_pendentes, nome_arquivo)
 
@@ -964,7 +980,7 @@ def conferencia_salvar_edicao():
         desenhar_campos_fixos_no_pdf(writer, empresa)
         preencher_e_formatar_pdf(writer, campos, travar_fixos=False, regenerar_ap=True)
 
-        pasta_pendentes = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'pendentes')
+        pasta_pendentes = PASTA_PENDENTES
         os.makedirs(pasta_pendentes, exist_ok=True)
         
         caminho_saida = None
@@ -1037,7 +1053,7 @@ def conferencia_atualizar_pdf():
             status = emp['status_lancamento_caixinha']
 
             # Localizar o arquivo atual para sobrescrever
-            pasta_pendentes = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'pendentes')
+            pasta_pendentes = PASTA_PENDENTES
             caminho = os.path.join(pasta_pendentes, nome_arquivo)
 
             # Se não estiver em pendentes, pode estar na pasta da gerente (já aprovado)
@@ -1092,7 +1108,7 @@ def get_caminho_pdf_caixinha(row, cursor):
     
     caminho = None
     if status == 'pendente_aprovacao':
-        pasta_pendentes = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'pendentes')
+        pasta_pendentes = PASTA_PENDENTES
         caminho = os.path.join(pasta_pendentes, arquivo)
     elif status in ('conferido', 'rejeitado') and not revisor:
         gerentes_reverso = get_gerentes_reverso()
@@ -1149,7 +1165,7 @@ def serve_pdf_rejeitado(empresa_id):
             
         caminho = None
         if row['arquivo_rejeitado']:
-            pasta_rejeicao = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'rejeicoes')
+            pasta_rejeicao = PASTA_REJEICOES
             caminho = os.path.join(pasta_rejeicao, row['arquivo_rejeitado'])
         elif row['arquivo_gerado']:
             caminho = get_caminho_pdf_caixinha(row, cursor)
@@ -1181,14 +1197,14 @@ def conferencia_aprovar():
                 arquivo_gerado = emp['arquivo_gerado']
                 letra = get_gerentes_reverso().get(emp['gerente'])
                 pasta_destino = get_paths_checklist().get(letra)
-                pasta_pendentes = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'pendentes')
+                pasta_pendentes = PASTA_PENDENTES
                 
                 if pasta_destino:
                     caminho_origem = os.path.join(pasta_pendentes, arquivo_gerado)
                     caminho_destino = os.path.join(pasta_destino, arquivo_gerado)
                     if os.path.exists(caminho_origem):
                         os.makedirs(pasta_destino, exist_ok=True)
-                        shutil.move(caminho_origem, caminho_destino)
+                        mover_arquivo(caminho_origem, caminho_destino)
 
             cursor.execute('''
                 UPDATE empresas
@@ -1232,7 +1248,7 @@ def conferencia_encaminhar():
                 caminho_destino = os.path.join(pasta_destino, arquivo_gerado)
                 if os.path.exists(caminho_origem):
                     os.makedirs(pasta_destino, exist_ok=True)
-                    shutil.move(caminho_origem, caminho_destino)
+                    mover_arquivo(caminho_origem, caminho_destino)
 
         cursor.execute('''
             UPDATE empresas
@@ -1367,7 +1383,7 @@ def revisao_recusar():
                     caminho_destino = os.path.join(pasta_destino, emp['arquivo_gerado'])
                     if os.path.exists(caminho_origem):
                         os.makedirs(pasta_destino, exist_ok=True)
-                        shutil.move(caminho_origem, caminho_destino)
+                        mover_arquivo(caminho_origem, caminho_destino)
                 
                 cursor.execute('''
                     UPDATE empresas
@@ -1414,7 +1430,7 @@ def revisao_encaminhar_yasmin():
                     caminho_destino = os.path.join(pasta_destino, arquivo_gerado)
                     if os.path.exists(caminho_origem):
                         os.makedirs(pasta_destino, exist_ok=True)
-                        shutil.move(caminho_origem, caminho_destino)
+                        mover_arquivo(caminho_origem, caminho_destino)
 
             cursor.execute('''
                 UPDATE empresas
@@ -1461,7 +1477,7 @@ def conferencia_rejeitar():
     try:
         nome_arquivo_anotado = None
         if arquivo_anotado and arquivo_anotado.filename.endswith('.pdf'):
-            pasta_rejeicao = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'pdf', 'rejeicoes')
+            pasta_rejeicao = PASTA_REJEICOES
             os.makedirs(pasta_rejeicao, exist_ok=True)
             ts = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
             nome_arquivo_anotado = f'rejeicao_{empresa_id}_{ts}.pdf'
