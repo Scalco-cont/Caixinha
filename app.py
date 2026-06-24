@@ -1493,11 +1493,13 @@ def conferencia_rejeitar():
                 WHERE id = ? AND status_lancamento_caixinha = 'pendente_aprovacao'
             ''', (nome_arquivo_anotado, motivo, empresa_id))
             
+            linhas_afetadas = cursor.rowcount
+            
             # Remove da tabela de baixas para não ficar riscado no painel
             cursor.execute('DELETE FROM baixas WHERE empresa_id = ?', (empresa_id,))
             
             conn.commit()
-            if cursor.rowcount == 0:
+            if linhas_afetadas == 0:
                 return jsonify({'status': 'erro', 'mensagem': 'Lançamento não encontrado ou já processado'}), 400
         return jsonify({'status': 'ok'})
     except Exception as e:
