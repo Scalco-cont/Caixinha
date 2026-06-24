@@ -676,7 +676,7 @@
                     fecharModal();
                     showMessage('❌ Lançamento rejeitado. Usuário será notificado.', true);
                     voltarConfLista();
-                    confDataAll = confDataAll.filter(e => e.id != id);
+                    confDataAll = confDataAll.filter(e => Number(e.id) !== Number(id));
                     renderConferencia();
                 } else showMessage('Erro: ' + data.mensagem, false);
             } catch (e) { 
