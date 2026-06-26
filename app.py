@@ -842,7 +842,7 @@ def lancamento_desbloquear():
         conn.commit()
     return jsonify({'status': 'ok'})
 
-<<<<<<< HEAD
+
 @app.route('/caixinha/lancamento/salvar-rascunho', methods=['POST'])
 def lancamento_salvar_rascunho():
     """Salva os campos do formulário PDF como rascunho, sem alterar o status da empresa.
@@ -888,8 +888,6 @@ def lancamento_salvar_rascunho():
         traceback.print_exc()
         return jsonify({'status': 'erro', 'mensagem': str(e)}), 500
 
-=======
->>>>>>> 4bf72fcc7a5b4239890f734e3bb81d5854b9e203
 @app.route('/caixinha/lancamento/finalizar', methods=['POST'])
 def lancamento_finalizar():
     try:
