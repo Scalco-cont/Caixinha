@@ -17,7 +17,6 @@ let itemsPerPage = parseInt(localStorage.getItem(LS_QTD) || '0');
 let showOnlyPendentes = localStorage.getItem(LS_PENDENTES) === 'true';
 let currentPage = 1;
 
-<<<<<<< HEAD
 // --- Rascunho automático ---
 let _rascunhoTimer = null;          // timer do debounce
 let _rascunhoEmAndamento = false;   // evita saves simultâneos
@@ -97,8 +96,6 @@ window.addEventListener('beforeunload', () => {
     navigator.sendBeacon('/caixinha/lancamento/salvar-rascunho', new Blob([payload], { type: 'application/json' }));
 });
 
-=======
->>>>>>> 4bf72fcc7a5b4239890f734e3bb81d5854b9e203
 // PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
