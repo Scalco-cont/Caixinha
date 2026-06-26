@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function carregarGerentesLista() {
-    return fetch('/api/gerentes')
+    return fetch('/caixinha/lancamento/gerentes')
         .then(r => r.json())
         .then(data => {
             if(data.success) {
