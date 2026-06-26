@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scalco Contabilidade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+</head>
+
+<body>
+
+    <div id="message"
+        style="display: none; position: fixed; top: 20px; left: 50%; transform: translateX(-50%); padding: 15px; border-radius: 4px; z-index: 9999;">
+    </div>
+
+    <div class="header">
+        <div class="header-title" style="display: flex; align-items: center; gap: 15px;">
+            Scalco Contabilidade
+            {% if is_admin %}
+            <a href="/admin_dashboard" class="manual-btn" style="background-color: #333; color: white; border: none; font-size: 13px; padding: 6px 12px; font-weight: normal; letter-spacing: normal;">Painel Admin</a>
+            {% endif %}
+        </div>
+        <div class="header-right">
+            {% if not logado %}
+            <button class="manual-btn" onclick="openModal('login')">Login</button>
+            {% else %}
+            <div class="user-info">
+                <span>Bem-vindo!</span>
+                <a href="/logout" class="manual-btn">Sair</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Left Content -->
+        <div class="left-content">
+            <h1 class="title">Escolha a opção</h1>
+            <p class="description">Site criado para centralizar as demandas da contabilidade scalco</p>
+
+            <div class="options">
+                <a class="option-btn" href="/lancamento">1. LANÇAMENTO CAIXINHA</a>
+                <a class="option-btn" href="/checklist">2. CONFERÊNCIA CAIXINHA</a>
+                <a class="option-btn" href="/checklist#revisao">3. REVISÃO FINAL</a>
+            </div>
+        </div>
+
+        <!-- Comments Sidebar -->
+        <div class="comments-sidebar">
+            <h3>Comentários</h3>
+
+            {% if logado %}
+            <div class="comment-form">
+                <form onsubmit="submitComment(event)">
+                    <div class="toolbar">
+                        <button type="button" class="format-btn" title="Negrito" onclick="execCommand('bold')">
+                            <strong>N</strong>
+                        </button>
+                        <button type="button" class="format-btn" title="Itálico" onclick="execCommand('italic')">
+                            <em>I</em>
+                        </button>
+                        <button type="button" class="format-btn" title="Sublinhado" onclick="execCommand('underline')">
+                            <u>S</u>
+                        </button>
+                    </div>
+                    <div id="editor" contenteditable="true"></div>
+                    <input type="hidden" id="commentContent" name="comentario">
+                    <button type="submit" class="submit-btn">Enviar Comentário</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="comments-list">
+                {% for comentario in comentarios %}
+                <div class="comment-item" id="comment-{{ comentario.id }}">
+                    <div class="comment-metadata">
+                        <strong>{{ comentario.autor_nome }}</strong>
+                        <span>{{ comentario.data_formatada }}</span>
+                    </div>
+                    {% if logado and (comentario.autor_id == usuario_atual or is_admin) %}
+                    <div class="comment-actions">
+                        <button onclick="editComment('{{ comentario.id }}')" class="format-btn">Editar</button>
+                        <button onclick="deleteComment('{{ comentario.id }}')" class="format-btn">Excluir</button>
+                    </div>
+                    {% endif %}
+                    <div class="comment-content">{{ comentario.conteudo | safe }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal login-modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal('login')">&times;</button>
+            <h2 class="login-title">Bem-vindo</h2>
+            <form action="/login" method="post" class="login-form">
+                <div class="input-group">
+                    <label for="usuario">Usuário</label>
+                    <input type="text" id="usuario" name="usuario" required>
+                </div>
+                <div class="input-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" required>
+                </div>
+                <button type="submit" class="login-btn">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Modals -->
+    <!-- Modal SPED -->
+    <div id="spedModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('sped')">&times;</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Upload de Arquivo - SPED</h2>
+                <a href="/manual-sped.html" class="manual-btn" target="_blank">Manual</a>
+            </div>
+            <form id="spedForm" class="file-form" enctype="multipart/form-data">
+                <div class="file-upload-wrapper">
+                    <input type="file" name="file" class="file-input" multiple required id="spedFileInput">
+                    <label for="spedFileInput" class="file-label">
+                        <i class="upload-icon">📁</i>
+                        <span class="upload-text">Escolha os arquivos ou arraste aqui</span>
+                    </label>
+                    <div class="selected-files"></div>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Arquivos</button>
+            </form>
+            <div style="margin-top: 20px;">
+                <h3>Últimos arquivos enviados:</h3>
+                <div id="spedFiles" class="files-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal ICMS -->
+    <div id="icmsModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('icms')">&times;</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Upload de Arquivo - ICMS</h2>
+                <a href="/manual-icms.html" class="manual-btn" target="_blank">Manual</a>
+            </div>
+            <form id="icmsForm" class="file-form" enctype="multipart/form-data">
+                <div class="file-upload-wrapper">
+                    <input type="file" name="file" class="file-input" multiple required id="icmsFileInput">
+                    <label for="icmsFileInput" class="file-label">
+                        <i class="upload-icon">📁</i>
+                        <span class="upload-text">Escolha os arquivos ou arraste aqui</span>
+                    </label>
+                    <div class="selected-files"></div>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Arquivos</button>
+            </form>
+            <div style="margin-top: 20px;">
+                <h3>Últimos arquivos enviados:</h3>
+                <div id="icmsFiles" class="files-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cartão -->
+    <div id="cartaoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('cartao')">&times;</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Upload de Arquivo - Cartão</h2>
+                <a href="/manual-cartao.html" class="manual-btn" target="_blank">Manual</a>
+            </div>
+            <form id="cartaoForm" class="file-form" enctype="multipart/form-data">
+                <div class="file-upload-wrapper">
+                    <input type="file" name="file" class="file-input" multiple required id="cartaoFileInput">
+                    <label for="cartaoFileInput" class="file-label">
+                        <i class="upload-icon">📁</i>
+                        <span class="upload-text">Escolha os arquivos ou arraste aqui</span>
+                    </label>
+                    <div class="selected-files"></div>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Arquivos</button>
+            </form>
+            <div style="margin-top: 20px;">
+                <h3>Últimos arquivos enviados:</h3>
+                <div id="cartaoFiles" class="files-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Outro -->
+    <div id="outroModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('outro')">&times;</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>Upload de Arquivo - Outro</h2>
+                <a href="/manual-outro.html" class="manual-btn" target="_blank">Manual</a>
+            </div>
+            <form id="outroForm" class="file-form" enctype="multipart/form-data">
+                <div class="file-upload-wrapper">
+                    <input type="file" name="file" class="file-input" multiple required id="outroFileInput">
+                    <label for="outroFileInput" class="file-label">
+                        <i class="upload-icon">📁</i>
+                        <span class="upload-text">Escolha os arquivos ou arraste aqui</span>
+                    </label>
+                    <div class="selected-files"></div>
+                </div>
+                <button type="submit" class="submit-btn">Enviar Arquivos</button>
+            </form>
+            <div style="margin-top: 20px;">
+                <h3>Últimos arquivos enviados:</h3>
+                <div id="outroFiles" class="files-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Entregas -->
+    <div id="entregasModal" class="modal">
+        <div class="modal-content" style="width: 80%; max-height: 80vh;">
+            <span class="close" onclick="closeModal('entregas')">&times;</span>
+            <h2>Entregas</h2>
+            <div id="entregasContent" style="white-space: pre-wrap; font-family: monospace; margin-top: 20px; max-height: calc(80vh - 100px); overflow-y: auto;">
+                Carregando...
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="header-title">Scalco Contabilidade</div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Funções de modal
+        // Modificar a função openModal existente
+        // Modificar a função openModal
+        function openModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            if (modal) {
+                // Adiciona a classe 'active' para ativar a transição CSS
+                modal.classList.add('active');
+                
+                // Carrega conteúdo específico (se necessário)
+                if (type === 'entregas') {
+                    carregarEntregas();
+                } else if (type !== 'login') { // Não carrega arquivos para o modal de login
+                    loadFiles(type);
+                }
+            }
+        }
+
+        function closeModal(type) {
+            const modal = document.getElementById(type + 'Modal');
+            if (modal) {
+                // Remove a classe 'active' para iniciar a transição de fechamento
+                modal.classList.remove('active');
+            }
+        }
+        // Função para mostrar mensagens
+        function showMessage(text, isSuccess = true) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = isSuccess ? 'success-message' : 'error-message';
+            messageDiv.style.display = 'block';
+
+            if (messageDiv.timeoutId) {
+                clearTimeout(messageDiv.timeoutId);
+            }
+
+            messageDiv.timeoutId = setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Modifique a função de envio do formulário
+        document.getElementById('spedForm').onsubmit = function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            fetch('/upload/sped', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showMessage('Arquivo enviado com sucesso!');
+                        loadFiles('sped'); // Atualiza a lista de arquivos
+                        this.reset(); // Limpa o formulário
+                    } else {
+                        showMessage(data.message || 'Erro ao enviar arquivo', false);
+                    }
+                })
+                .catch(error => {
+                    showMessage('Erro ao enviar arquivo', false);
+                });
+        };
+        
+        // Função para carregar a lista de arquivos
+        function loadFiles(category) {
+            fetch(`/files/${category}`)
+                .then(response => response.json())
+                .then(files => {
+                    const container = document.getElementById(`${category}Files`);
+                    if (container) {
+                        container.innerHTML = files.length ? '' : '<p>Nenhum arquivo enviado ainda.</p>';
+
+                        files.slice(0, 5).forEach(file => {
+                            const fileElement = document.createElement('div');
+                            fileElement.className = 'file-item';
+                            fileElement.innerHTML = `
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-date">${file.date}</span>
+                    `;
+                            container.appendChild(fileElement);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar arquivos:', error);
+                });
+        }
+
+        // Função para download de arquivo
+        function downloadFile(category, filename) {
+            window.location.href = `/download/${category}/${filename}`;
+        }
+
+        // Função para deletar arquivo
+        function deleteFile(category, filename) {
+            if (confirm('Tem certeza que deseja excluir este arquivo?')) {
+                fetch(`/delete/${category}/${filename}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            loadFiles(category);
+                        } else {
+                            alert('Erro ao excluir arquivo');
+                        }
+                    });
+            }
+        }
+
+        // Função para executar comandos de formatação
+        function execCommand(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('editor').focus();
+        }
+
+        // Função para enviar comentário
+        function submitComment(event) {
+            event.preventDefault();
+            const editor = document.getElementById('editor');
+            const content = editor.innerHTML;
+            const commentContent = document.getElementById('commentContent');
+            commentContent.value = content;
+
+            // Se estivermos editando, usa o endpoint de edição
+            const isEditing = editor.dataset.editing;
+            const url = isEditing ? `/comentario/editar/${isEditing}` : '/comentario';
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    comentario: content
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Erro ao salvar comentário');
+                    }
+                });
+        }
+
+        // Função para editar comentário
+        function editComment(commentId) {
+            const commentDiv = document.querySelector(`#comment-${commentId} .comment-content`);
+            const editor = document.getElementById('editor');
+            editor.innerHTML = commentDiv.innerHTML;
+            editor.dataset.editing = commentId;
+            editor.focus();
+
+            // Rola a página até o editor
+            editor.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Função para excluir comentário
+        function deleteComment(commentId) {
+            if (confirm('Tem certeza que deseja excluir este comentário?')) {
+                fetch(`/comentario/deletar/${commentId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const commentElement = document.querySelector(`#comment-${commentId}`);
+                            commentElement.remove();
+                        } else {
+                            alert('Erro ao excluir comentário');
+                        }
+                    });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Configuração dos formulários de upload
+            ['sped', 'icms', 'cartao', 'outro'].forEach(function (category) {
+                const form = document.getElementById(`${category}Form`);
+                const fileInput = document.getElementById(`${category}FileInput`);
+                const fileLabel = form?.querySelector('.file-label');
+                const selectedFiles = form?.querySelector('.selected-files');
+
+                if (form && fileInput && fileLabel && selectedFiles) {
+                    // Função para atualizar a lista de arquivos selecionados
+                    function updateFileList() {
+                        selectedFiles.innerHTML = '';
+                        const files = fileInput.files;
+
+                        for (let i = 0; i < files.length; i++) {
+                            const file = files[i];
+                            const fileSize = (file.size / 1024).toFixed(2) + ' KB';
+
+                            const fileItem = document.createElement('div');
+                            fileItem.className = 'selected-file-item';
+                            fileItem.innerHTML = `
+                        <span class="selected-file-name">${file.name}</span>
+                        <span class="selected-file-size">${fileSize}</span>
+                    `;
+                            selectedFiles.appendChild(fileItem);
+                        }
+                    }
+
+                    // Eventos de arrastar e soltar
+                    fileLabel.addEventListener('dragover', function (e) {
+                        e.preventDefault();
+                        this.classList.add('drag-over');
+                    });
+
+                    fileLabel.addEventListener('dragleave', function (e) {
+                        e.preventDefault();
+                        this.classList.remove('drag-over');
+                    });
+
+                    fileLabel.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        this.classList.remove('drag-over');
+                        fileInput.files = e.dataTransfer.files;
+                        updateFileList();
+                    });
+
+                    // Atualiza a lista quando arquivos são selecionados
+                    fileInput.addEventListener('change', updateFileList);
+
+                    // Manipulador do envio do formulário
+                    form.onsubmit = async function (e) {
+                        e.preventDefault();
+                        const formData = new FormData(this);
+
+                        try {
+                            const response = await fetch('/upload/' + category, {
+                                method: 'POST',
+                                body: formData
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                showMessage(`${data.files.length} arquivo(s) enviado(s) com sucesso!`);
+                                loadFiles(category);
+                                this.reset();
+                                selectedFiles.innerHTML = ''; // Limpa a lista de arquivos selecionados
+                            } else if (data.existing_files) {
+                                // Processa cada arquivo existente sequencialmente
+                                for (const file of data.existing_files) {
+                                    const shouldReplace = confirm(`O arquivo "${file.filename}" já existe. Deseja substituí-lo?`);
+
+                                    if (shouldReplace) {
+                                        const replaceFormData = new FormData();
+
+                                        // Encontra o arquivo correspondente no input
+                                        for (let i = 0; i < fileInput.files.length; i++) {
+                                            if (fileInput.files[i].name === file.filename) {
+                                                replaceFormData.append('file', fileInput.files[i]);
+
+                                                try {
+                                                    const replaceResponse = await fetch(`/upload/${category}/replace`, {
+                                                        method: 'POST',
+                                                        body: replaceFormData
+                                                    });
+                                                    const replaceData = await replaceResponse.json();
+
+                                                    if (replaceData.success) {
+                                                        showMessage(`Arquivo "${file.filename}" substituído com sucesso!`);
+                                                    } else {
+                                                        showMessage(`Erro ao substituir "${file.filename}"`, false);
+                                                    }
+                                                } catch (error) {
+                                                    showMessage(`Erro ao substituir "${file.filename}"`, false);
+                                                }
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
+
+                                loadFiles(category);
+                                if (data.uploaded_files && data.uploaded_files.length > 0) {
+                                    showMessage(`${data.uploaded_files.length} arquivo(s) novo(s) enviado(s) com sucesso!`);
+                                }
+                                this.reset();
+                                selectedFiles.innerHTML = '';
+                            } else {
+                                showMessage(data.message || 'Erro ao enviar arquivo', false);
+                            }
+                        } catch (error) {
+                            console.error('Erro:', error);
+                            showMessage('Erro ao enviar arquivo', false);
+                        }
+                    };
+                }
+            });
+        });
+
+        // Adicionar função para carregar o conteúdo do arquivo de entregas
+        function carregarEntregas() {
+            fetch('/entregas', {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(empresas => {
+                    const contentDiv = document.getElementById('entregasContent');
+                    let html = '<table class="empresas-table" style="width: 100%; border-collapse: collapse;">';
+                    html += '<thead><tr><th>Número</th><th>Nome da Empresa</th><th>Gerente</th></tr></thead>';
+                    html += '<tbody>';
+                    
+                    empresas.forEach(empresa => {
+                        html += `<tr>
+                            <td>${empresa.numero}</td>
+                            <td>${empresa.nome}</td>
+                            <td>${empresa.gerente}</td>
+                        </tr>`;
+                    });
+                    
+                    html += '</tbody></table>';
+                    contentDiv.innerHTML = html;
+                })
+                .catch(error => {
+                    document.getElementById('entregasContent').textContent = 'Erro ao carregar o arquivo de entregas.';
+                    console.error('Erro:', error);
+                });
+        }
+
+        // Fechar o modal clicando fora dele ou com a tecla Esc
+        window.onclick = function (event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let modal of modals) {
+                // Verifica se o clique foi no fundo escuro (o próprio modal)
+                if (event.target == modal) {
+                    // Remove a classe 'active' para fechar
+                    modal.classList.remove('active');
+                }
+            }
+        }
+
+        // Adiciona funcionalidade para fechar com a tecla Esc
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                 const activeModals = document.querySelectorAll('.modal.active');
+                 activeModals.forEach(modal => {
+                     modal.classList.remove('active');
+                 });
+            }
+        });
+    </script>
+</body>
+
+</html>

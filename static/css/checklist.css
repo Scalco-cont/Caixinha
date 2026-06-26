@@ -1,0 +1,1292 @@
+        /* ---- Layout geral ---- */
+        body {
+            background-color: #f9f9f9;
+        }
+
+        .page-wrapper {
+            padding: 24px 28px 100px 28px;
+        }
+
+        /* ---- Barra de controles ---- */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .controls-bar h1 {
+            font-size: 22px;
+            font-weight: bold;
+            color: #111;
+            letter-spacing: 0.2px;
+        }
+
+        .controls-bar h1 span {
+            color: #ff0000;
+        }
+
+        .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-admin {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+
+        .btn-admin:hover {
+            background-color: #111;
+        }
+
+        .btn-reset {
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-reset:hover {
+            background-color: #d40000;
+        }
+
+        /* ---- Abas ---- */
+        .tabs-bar {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 24px;
+        }
+
+        .tab-btn {
+            padding: 10px 28px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.15s;
+        }
+
+        .tab-btn:hover {
+            color: #ff0000;
+        }
+
+        .tab-btn.active {
+            color: #ff0000;
+            border-bottom-color: #ff0000;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* ---- Grade de 1 coluna (após login, só a gerente logada) ---- */
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 22px;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* ---- Card de gerente ---- */
+        .manager-card {
+            background: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .manager-card-header {
+            background-color: #ff0000;
+            color: white;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .manager-card-header h2 {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px 9px;
+            border-radius: 12px;
+        }
+
+        .manager-card-body {
+            padding: 12px 14px;
+        }
+
+        /* ---- Itens de empresa (Baixas) ---- */
+        .company-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .company-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            margin-bottom: 6px;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            transition: opacity 0.3s;
+        }
+
+        .company-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .company-item .company-number {
+            font-size: 11px;
+            font-weight: bold;
+            color: #ff0000;
+            background: #fff0f0;
+            border: 1px solid #fcc;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .company-item .company-name {
+            font-size: 13px;
+            color: #222;
+            flex: 1;
+        }
+
+        .company-item .status-icon {
+            font-size: 15px;
+            margin-left: 8px;
+            flex-shrink: 0;
+            color: #bbb;
+        }
+
+        .company-item.baixa {
+            opacity: 0.45;
+            background: #f0f0f0;
+            border-color: #ddd;
+        }
+
+        .company-item.baixa .company-name {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .company-item.baixa .company-number {
+            color: #999;
+            background: #eee;
+            border-color: #ddd;
+        }
+
+        .company-item.baixa .status-icon {
+            color: #28a745;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 28px 10px;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .card-footer {
+            padding: 10px 14px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-footer strong {
+            color: #28a745;
+        }
+
+        /* ---- Login de gerente (Baixas) — mesma aparência da Conferência ---- */
+        #baixas-login-panel {
+            max-width: 440px;
+            margin: 40px auto;
+            background: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 36px 40px;
+            text-align: center;
+        }
+
+        #baixas-login-panel h2 {
+            font-size: 1.2rem;
+            color: #111;
+            margin-bottom: 6px;
+        }
+
+        #baixas-login-panel p {
+            font-size: 0.88rem;
+            color: #777;
+            margin-bottom: 22px;
+        }
+
+        .baixas-gerente-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .baixas-gbtn {
+            padding: 8px 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.15s;
+        }
+
+        .baixas-gbtn:hover,
+        .baixas-gbtn.selected {
+            border-color: #ff0000;
+            background: #fff5f5;
+            color: #ff0000;
+        }
+
+        .baixas-senha-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .baixas-senha-row input {
+            flex: 1;
+            padding: 9px 13px;
+            border: 1.5px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .baixas-senha-row input:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        #baixas-btn-entrar {
+            width: 100%;
+            padding: 10px;
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        #baixas-btn-entrar:hover {
+            background: #d40000;
+        }
+
+        #baixas-erro {
+            color: #c0392b;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* ---- Painel principal Baixas (após login) ---- */
+        #baixas-main {
+            display: none;
+        }
+
+        .baixas-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .baixas-header-bar h2 {
+            font-size: 17px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .baixas-header-bar span {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .btn-baixas-sair {
+            background: #eee;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 7px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-baixas-sair:hover {
+            background: #e0e0e0;
+        }
+
+        /* ======================================================
+           ABA CONFERÊNCIA
+        ====================================================== */
+
+        /* --- Login de gerente --- */
+        #conf-login-panel {
+            max-width: 440px;
+            margin: 40px auto;
+            background: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 36px 40px;
+            text-align: center;
+        }
+
+        #conf-login-panel h2 {
+            font-size: 1.2rem;
+            color: #111;
+            margin-bottom: 6px;
+        }
+
+        #conf-login-panel p {
+            font-size: 0.88rem;
+            color: #777;
+            margin-bottom: 22px;
+        }
+
+        .conf-gerente-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .conf-gbtn {
+            padding: 8px 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.15s;
+        }
+
+        .conf-gbtn:hover,
+        .conf-gbtn.selected {
+            border-color: #ff0000;
+            background: #fff5f5;
+            color: #ff0000;
+        }
+
+        .conf-senha-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .conf-senha-row input {
+            flex: 1;
+            padding: 9px 13px;
+            border: 1.5px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .conf-senha-row input:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        #conf-btn-entrar {
+            width: 100%;
+            padding: 10px;
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        #conf-btn-entrar:hover {
+            background: #d40000;
+        }
+
+        #conf-erro {
+            color: #c0392b;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        /* --- Painel principal de conferência --- */
+        #conf-main {
+            display: none;
+        }
+
+        .conf-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .conf-header-bar h2 {
+            font-size: 17px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .conf-header-bar span {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .btn-conf-sair {
+            background: #eee;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 7px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-conf-sair:hover {
+            background: #e0e0e0;
+        }
+
+        /* --- Cards de conferência --- */
+        .conf-card {
+            background: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+
+        .conf-card-header {
+            background-color: #ff0000;
+            color: #fff;
+            padding: 13px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .conf-card-header h3 {
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 0.3px;
+        }
+
+        .conf-card-header .badge-pend {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 9px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .conf-expand {
+            font-size: 13px;
+            margin-left: 10px;
+            transition: transform 0.2s;
+        }
+
+        .conf-card.open .conf-expand {
+            transform: rotate(180deg);
+        }
+
+        .conf-card-body {
+            display: none;
+            padding: 18px;
+        }
+
+        .conf-card.open .conf-card-body {
+            display: block;
+        }
+
+        .conf-card-meta {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 14px;
+        }
+
+        /* --- PDF viewer --- */
+        .conf-pdf-wrap {
+            background: #555;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .conf-pdf-wrap iframe {
+            width: 100%;
+            height: 620px;
+            border: none;
+            display: block;
+        }
+
+        .conf-pdf-loading {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #555;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        /* --- Botões de ação da conferência --- */
+        .conf-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-conferido {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-conferido:hover {
+            background: #218838;
+        }
+
+        .btn-conferido:disabled {
+            background: #8fd4a0;
+            cursor: not-allowed;
+        }
+
+        .btn-rejeitado {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-rejeitado:hover {
+            background: #d40000;
+        }
+
+        .btn-rejeitado:disabled {
+            background: #f08080;
+            cursor: not-allowed;
+        }
+
+        /* --- Modal de rejeição --- */
+        #modal-rejeicao {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 8000;
+        }
+
+        #modal-rejeicao.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px 34px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .modal-box h3 {
+            font-size: 16px;
+            color: #ff0000;
+            margin-bottom: 16px;
+        }
+
+        .modal-box label {
+            font-size: 13px;
+            color: #555;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .modal-box textarea {
+            width: 100%;
+            min-height: 85px;
+            border: 1.5px solid #ddd;
+            border-radius: 5px;
+            padding: 9px 12px;
+            font-size: 13px;
+            resize: vertical;
+            margin-bottom: 14px;
+            font-family: inherit;
+        }
+
+        .modal-box textarea:focus {
+            outline: none;
+            border-color: #ff0000;
+        }
+
+        .modal-file-wrap {
+            margin-bottom: 18px;
+        }
+
+        .modal-file-wrap input[type=file] {
+            font-size: 13px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-cancelar {
+            background: #eee;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 9px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-cancelar:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-confirmar-rej {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 9px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-confirmar-rej:hover {
+            background: #d40000;
+        }
+
+        /* --- Empty conferência --- */
+        .conf-empty {
+            text-align: center;
+            padding: 52px 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .conf-empty .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* --- Mensagem flutuante --- */
+        #message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 25px;
+            border-radius: 5px;
+            z-index: 9999;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            color: white;
+            font-size: 14px;
+        }
+
+        .msg-success {
+            background-color: #27ae60;
+        }
+
+        .msg-error {
+            background-color: #c0392b;
+        }
+
+        /* --- Modal de encaminhamento para revisor --- */
+        #modal-encaminhar {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 8000;
+        }
+
+        #modal-encaminhar.open {
+            display: flex;
+        }
+
+        .revisor-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 16px 0;
+        }
+
+        .revisor-btn {
+            padding: 10px 22px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.15s;
+        }
+
+        .revisor-btn:hover,
+        .revisor-btn.selected {
+            border-color: #28a745;
+            background: #f0faf4;
+            color: #28a745;
+        }
+
+        /* --- Aba de Revisão (Valnei/Yasmin/Marielli) --- */
+        #rev-login-panel {
+            max-width: 440px;
+            margin: 40px auto;
+            background: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            padding: 36px 40px;
+            text-align: center;
+        }
+
+        #rev-login-panel h2 {
+            font-size: 1.2rem;
+            color: #111;
+            margin-bottom: 6px;
+        }
+
+        #rev-login-panel p {
+            font-size: 0.88rem;
+            color: #777;
+            margin-bottom: 22px;
+        }
+
+        .rev-revisor-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        .rev-rbtn {
+            padding: 8px 20px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+            transition: all 0.15s;
+        }
+
+        .rev-rbtn:hover,
+        .rev-rbtn.selected {
+            border-color: #dc3545;
+            background: #fdf5f5;
+            color: #dc3545;
+        }
+
+        .rev-senha-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .rev-senha-row input {
+            flex: 1;
+            padding: 9px 13px;
+            border: 1.5px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .rev-senha-row input:focus {
+            outline: none;
+            border-color: #dc3545;
+        }
+
+        #rev-btn-entrar {
+            width: 100%;
+            padding: 10px;
+            background: #dc3545;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        #rev-btn-entrar:hover {
+            background: #c82333;
+        }
+
+        #rev-erro {
+            color: #c0392b;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        #rev-main {
+            display: none;
+        }
+
+        .rev-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .rev-header-bar h2 {
+            font-size: 17px;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .btn-rev-sair {
+            background: #eee;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 7px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-rev-sair:hover {
+            background: #e0e0e0;
+        }
+
+        .rev-card {
+            background: #fff;
+            border: 1px solid #e2e2e2;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+            margin-bottom: 18px;
+            overflow: hidden;
+        }
+
+        .rev-card-header {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 13px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .rev-card-header h3 {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .rev-card-body {
+            display: none;
+            padding: 18px;
+        }
+
+        .rev-card.open .rev-card-body {
+            display: block;
+        }
+
+        .rev-expand {
+            font-size: 13px;
+            margin-left: 10px;
+            transition: transform 0.2s;
+        }
+
+        .rev-card.open .rev-expand {
+            transform: rotate(180deg);
+        }
+
+        .rev-card-meta {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 14px;
+        }
+
+        .rev-pdf-wrap {
+            background: #555;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            position: relative;
+        }
+
+        .rev-pdf-wrap iframe {
+            width: 100%;
+            height: 620px;
+            border: none;
+            display: block;
+        }
+
+        .rev-empty {
+            text-align: center;
+            padding: 52px 20px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .rev-empty .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .btn-revisado {
+            background: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-revisado:hover {
+            background: #218838;
+        }
+
+        .btn-revisado:disabled {
+            background: #94d3a2;
+            cursor: not-allowed;
+        }
+
+        /* --- Encaminhar para Yasmin (Valnei / Marielli) --- */
+        .btn-enc-yasmin {
+            background: #17a2b8;
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.15s;
+            margin-left: 8px;
+        }
+
+        .btn-enc-yasmin:hover {
+            background: #138496;
+        }
+
+        .btn-enc-yasmin:disabled {
+            background: #80cdd8;
+            cursor: not-allowed;
+        }
+
+        /* --- Visão Geral (gerentes) --- */
+        .vg-group {
+            margin-bottom: 22px;
+        }
+
+        .vg-group-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vg-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 9px 14px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+
+        .vg-item-num {
+            font-size: 11px;
+            font-weight: bold;
+            color: #343a40;
+            background: #e9ecef;
+            padding: 2px 7px;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+
+        .vg-item-gerente {
+            font-size: 11px;
+            color: #888;
+            margin-left: 8px;
+        }
+
+        .vg-item-dt {
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        /* --- Upload Yasmin (drag & drop) --- */
+        .yasmin-upload-zone {
+            border: 2px dashed #dc3545;
+            border-radius: 10px;
+            padding: 18px 20px;
+            text-align: center;
+            background: #fff8f8;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 14px;
+            position: relative;
+        }
+
+        .yasmin-upload-zone:hover,
+        .yasmin-upload-zone.drag-over {
+            background: #fde8e8;
+            border-color: #c82333;
+        }
+
+        .yasmin-upload-zone input[type=file] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .yasmin-upload-icon {
+            font-size: 2rem;
+            margin-bottom: 6px;
+        }
+
+        .yasmin-upload-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #dc3545;
+        }
+
+        .yasmin-upload-sub {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+
+        .yasmin-file-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #f0faf4;
+            border: 1px solid #b2dfdb;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 8px;
+        }
+
+        .yasmin-file-preview.visible {
+            display: flex;
+        }
+
+        .yasmin-file-preview .file-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #2e7d32;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .yasmin-file-preview .btn-remove-file {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #c0392b;
+            line-height: 1;
+        }
+
+        /* --- Modal edição PDF gerente --- */
+        #modal-editar-pdf {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 8500;
+        }
+
+        #modal-editar-pdf.open {
+            display: flex;
+        }
+
+        .modal-editar-box {
+            background: #fff;
+            border-radius: 10px;
+            padding: 28px 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .modal-editar-box h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .modal-editar-box p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .gerente-upload-zone {
+            border: 2px dashed #ff0000;
+            border-radius: 10px;
+            padding: 22px;
+            text-align: center;
+            background: #fff5f5;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .gerente-upload-zone:hover,
+        .gerente-upload-zone.drag-over {
+            background: #ffe0e0;
+        }
+
+        .gerente-upload-zone input[type=file] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .gerente-file-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: #f0f4ff;
+            border: 1px solid #b3c6ff;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 14px;
+        }
+
+        .gerente-file-preview.visible {
+            display: flex;
+        }
+
+        .gerente-file-preview .file-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #1a3a6b;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .gerente-file-preview .btn-remove-file {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #c0392b;
+        }

@@ -1,0 +1,581 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+html,
+body {
+    height: 100%;
+    background-color: #f9f9f9;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+    height: 80px;
+}
+
+.header-right {
+    min-width: 120px;
+    text-align: right;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.header-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000;
+}
+
+/* Buttons */
+.manual-btn,
+.submit-btn,
+.option-btn {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.manual-btn {
+    padding: 10px 20px;
+    min-width: 80px;
+}
+
+.submit-btn {
+    padding: 10px 20px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.option-btn {
+    padding: 15px 30px;
+}
+
+.manual-btn:hover,
+.submit-btn:hover,
+.option-btn:hover {
+    background-color: #d40000;
+}
+
+/* Main Content */
+.content {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex: 1;
+    margin-right: 520px;
+    margin-bottom: 80px;
+}
+
+.title {
+    font-size: 36px;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.description {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.options {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Main Container */
+.main-container {
+    display: flex;
+    gap: 30px;
+    padding: 20px;
+}
+
+.left-content {
+    flex: 1;
+    max-width: 800px;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 20px;
+    background-color: white;
+    border-top: 1px solid #e0e0e0;
+    margin-top: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Base modal styles */
+.modal {
+    display: flex; /* Use flex for centering */
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+    opacity: 0; /* Start hidden */
+    visibility: hidden; /* Start hidden */
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* Fade out transition */
+    /* Delay visibility change until opacity transition ends */
+}
+
+/* Styles when modal is active/visible */
+.modal.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease; /* Fade in transition */
+    /* No delay for visibility when becoming active */
+}
+
+/* Modal Content basic styling and animation */
+.modal-content {
+    background-color: #fefefe;
+    margin: auto; /* Centered */
+    padding: 30px;
+    border: 1px solid #ddd;
+    width: 80%; /* Default width */
+    max-width: 600px; /* Max width for most modals */
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative; /* For close button positioning */
+    transform: scale(0.95); /* Start slightly smaller */
+    transition: transform 0.3s ease;
+}
+
+.modal.active .modal-content {
+    transform: scale(1); /* Scale to normal size when active */
+}
+
+/* Adjust Entregas modal width */
+#entregasModal .modal-content {
+    max-width: 80%; /* Keep Entregas modal wider */
+}
+
+/* Close Button */
+.modal .close, .modal .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.modal .close:hover, .modal .close:focus,
+.modal .close-btn:hover, .modal .close-btn:focus {
+    color: #333; /* Darker on hover */
+    text-decoration: none;
+}
+
+/* Login Modal Specific Adjustments (Example if needed) */
+.login-modal .modal-content {
+    max-width: 400px; /* Smaller width for login */
+}
+
+/* --- End Modal Styles --- */
+
+.files-list {
+    margin-top: 10px;
+    padding: 10px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.file-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.file-date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.download-btn {
+    background: #28a745;
+    color: white;
+}
+
+.delete-btn {
+    background: #dc3545;
+    color: white;
+}
+
+.close,
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.close-btn {
+    border: none;
+    background: none;
+    padding: 5px;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+/* File Forms */
+.file-form {
+    margin-top: 20px;
+}
+
+.file-upload-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.file-input {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 150px;
+    padding: 20px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-label:hover {
+    background: #e9ecef;
+    border-color: #ff0000;
+}
+
+.upload-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    font-size: 16px;
+    color: #6c757d;
+    text-align: center;
+}
+
+.selected-files {
+    margin-top: 10px;
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+}
+
+.selected-file-item {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.selected-file-name {
+    flex: 1;
+    margin-right: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selected-file-size {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.file-input:focus+.file-label {
+    border-color: #ff0000;
+    box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25);
+}
+
+/* Estilo para quando estiver arrastando arquivos */
+.file-label.drag-over {
+    background: #e9ecef;
+    border-color: #ff0000;
+}
+
+.success-message {
+    color: green;
+    margin-top: 10px;
+    display: none;
+}
+
+.error-message {
+    color: red;
+    margin-top: 10px;
+    display: none;
+}
+
+/* Comments Sidebar */
+.comments-sidebar {
+    position: fixed;
+    right: 0;
+    top: 80px;
+    width: 500px;
+    height: calc(100vh - 120px);
+    background-color: white;
+    border-left: 1px solid #e0e0e0;
+    padding: 20px;
+    padding-bottom: 80px;
+    overflow-y: auto;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+/* Comment Form */
+.comment-form {
+    margin-bottom: 20px;
+}
+
+/* Rich Text Editor */
+.toolbar {
+    padding: 8px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    display: flex;
+    gap: 8px;
+}
+
+.format-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.format-btn:hover {
+    background: #f0f0f0;
+}
+
+select.format-btn {
+    height: 30px;
+    padding: 2px 5px;
+}
+
+#editor {
+    width: 100%;
+    min-height: 150px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-top: none;
+    border-radius: 0 0 4px 4px;
+    margin-bottom: 10px;
+    background: white;
+    outline: none;
+}
+
+/* Comments List */
+.comments-list {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+}
+
+.comment-item {
+    position: relative;
+    padding: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.comment-metadata {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.comment-content {
+    margin-top: 10px;
+    word-wrap: break-word;
+}
+
+.comment-actions {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: none;
+}
+
+.comment-item:hover .comment-actions {
+    display: flex;
+    gap: 5px;
+}
+
+/* Login Modal Styles */
+.login-modal .modal-content {
+    max-width: 400px;
+    padding: 30px;
+    border-radius: 8px;
+    background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+}
+
+.login-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #ff0000;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.1);
+}
+
+.input-group label {
+    position: absolute;
+    left: 15px;
+    top: -10px;
+    background-color: white;
+    padding: 0 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+.login-btn {
+    background-color: #ff0000;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #d40000;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .comments-sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        border-left: none;
+        margin-top: 20px;
+    }
+
+    .content {
+        margin-right: 0;
+    }
+
+    .options {
+        flex-direction: column;
+    }
+
+    .option-btn {
+        width: 100%;
+    }
+}
+
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.error-message {
+    background-color: #f44336;
+    color: white;
+}

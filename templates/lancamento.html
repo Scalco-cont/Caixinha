@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lançamento Caixinha — Scalco Contabilidade</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=3">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lancamento.css') }}?v=3">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+</head>
+
+<body data-is-admin="{{ 'true' if (is_admin == True or is_admin == 1) else 'false' }}">
+
+    <div id="message"></div>
+
+    <div class="header">
+        <div class="header-title">Scalco Contabilidade</div>
+        <div class="header-right">
+            <div class="user-info">
+                <a href="/" class="manual-btn" style="margin-right: 6px;">Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-wrapper">
+
+        <div class="controls-bar">
+            <h1>Lançamento de Baixas — <span>Formulário R-015</span></h1>
+        </div>
+
+        <!-- VIEW 1: Listagem de Empresas -->
+        <div id="view-lista">
+            <!-- Pagination controls iguais aos do checklist -->
+            <div class="pagination-controls" style="display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 22px; flex-wrap: wrap;">
+                <label style="font-size: 14px; display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: bold; color: #333; margin-right: 10px;">
+                    <input type="checkbox" id="showOnlyPendentes" onchange="togglePendentes()"> Somente Pendentes
+                </label>
+                <input type="text" id="search-lancamento" placeholder="Buscar por número ou nome..." oninput="aplicarFiltros()" style="padding: 7px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; width: 200px;">
+                <select id="filter-gerente" onchange="aplicarFiltros()" style="padding: 7px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+                    <option value="Todos">Todos os Gerentes</option>
+                    <!-- Preenchido via JS -->
+                </select>
+                <select id="filter-quantidade" onchange="changeItemsPerPage()" style="padding: 7px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+                    <option value="10">10 por página</option>
+                    <option value="25">25 por página</option>
+                    <option value="50">50 por página</option>
+                    <option value="0">Todos (Sem paginação)</option>
+                </select>
+                <button onclick="prevPage()" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">&laquo; Ant.</button>
+                <span id="pageInfo" style="font-size: 14px; font-weight: bold;"></span>
+                <button onclick="nextPage()" class="btn-secondary" style="padding: 6px 12px; font-size: 12px;">Próx. &raquo;</button>
+            </div>
+
+            <div class="checklist-grid" id="managers-grid">
+                <!-- Cards renderizados via JS -->
+            </div>
+        </div>
+
+        <!-- VIEW 2: Preenchimento do PDF (Passo 1) -->
+        <div id="view-form" style="display: none;">
+            <div class="wizard-panel">
+                <div class="wizard-header">
+                    <div>
+                        <div class="wizard-title" id="empresa-nome-title">Nome da Empresa</div>
+                        <div class="wizard-subtitle">Passo 1 de 2: Preencha os campos do documento.</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span id="draft-saved-indicator" style="
+                            font-size: 12px;
+                            color: #16a34a;
+                            font-weight: bold;
+                            background: #dcfce7;
+                            border: 1px solid #86efac;
+                            border-radius: 6px;
+                            padding: 4px 10px;
+                            opacity: 0;
+                            pointer-events: none;
+                        ">💾 Rascunho salvo</span>
+                        <button type="button" class="btn-secondary" onclick="voltarParaLista()">Cancelar</button>
+                    </div>
+                </div>
+
+                <div class="pdf-viewer-wrapper">
+                    <!-- Barra de Zoom -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px;">
+                        <button type="button" onclick="ajustarZoom(-0.2)" style="width:32px; height:32px; font-size:18px; font-weight:bold; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; line-height:1;">&#8722;</button>
+                        <span id="zoom-label" style="font-size:13px; font-weight:bold; color:#444; min-width:45px; text-align:center;">130%</span>
+                        <button type="button" onclick="ajustarZoom(0.2)" style="width:32px; height:32px; font-size:18px; font-weight:bold; border:1px solid #ccc; border-radius:4px; background:#fff; cursor:pointer; line-height:1;">&#43;</button>
+                        <button type="button" onclick="resetarZoom()" style="padding:5px 12px; font-size:12px; border:1px solid #ccc; border-radius:4px; background:#eee; cursor:pointer;">Resetar</button>
+                    </div>
+                    <div id="loading-pdf" style="padding: 50px; color: #666; font-weight: bold;">Carregando visualização do documento...</div>
+                    <div id="pdf-container" style="display: none;">
+                        <canvas id="pdf-canvas"></canvas>
+                        <div id="pdf-annotations"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-primary" onclick="irParaPasso2()">Próximo: Anexos &raquo;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 3: Upload de Anexos (Passo 2) -->
+        <div id="view-anexos" style="display: none;">
+            <div class="wizard-panel">
+                <div class="wizard-header">
+                    <div>
+                        <div class="wizard-title">Arquivos Complementares</div>
+                        <div class="wizard-subtitle">Passo 2 de 2: Anexe PDFs adicionais (opcional).</div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="voltarParaPasso1()">&laquo; Voltar ao Formulário</button>
+                </div>
+
+                <div style="padding: 20px 0;">
+                    <label style="display: block; margin-bottom: 15px; font-weight: bold; cursor: pointer; font-size: 15px;">
+                        <input type="checkbox" id="chk-so-caixinha" onchange="toggleUploadArea()" style="transform: scale(1.2); margin-right: 8px;"> 
+                        Apenas o formulário Caixinha (Sem anexos complementares)
+                    </label>
+
+                    <div id="lancamentoUploadArea" class="file-upload-wrapper" style="margin-top: 20px;">
+                        <input type="file" name="arquivos" class="file-input" multiple accept=".pdf" id="lancamentoFileInput">
+                        <label for="lancamentoFileInput" class="file-label" style="padding: 40px; border: 2px dashed #ccc; border-radius: 8px; text-align: center; cursor: pointer; display: block; background: #fafafa; transition: background 0.2s;">
+                            <i style="font-size: 30px; display: block; margin-bottom: 10px;">📄</i>
+                            <span style="font-weight: bold; color: #555;">Clique para escolher os PDFs ou arraste-os aqui</span>
+                        </label>
+                        <div id="lancamentoSelectedFiles" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" class="btn-primary" id="btn-finalizar" onclick="finalizarCaixinha()">FINALIZAR E GERAR PDF ✓</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Configurações via Data Attributes para o JS -->
+    <script src="{{ url_for('static', filename='js/lancamento.js') }}"></script>
+</body>
+</html>
