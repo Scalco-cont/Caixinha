@@ -17,6 +17,7 @@ let itemsPerPage = parseInt(localStorage.getItem(LS_QTD) || '0');
 let showOnlyPendentes = localStorage.getItem(LS_PENDENTES) === 'true';
 let currentPage = 1;
 
+<<<<<<< HEAD
 // --- Rascunho automático ---
 let _rascunhoTimer = null;          // timer do debounce
 let _rascunhoEmAndamento = false;   // evita saves simultâneos
@@ -96,6 +97,8 @@ window.addEventListener('beforeunload', () => {
     navigator.sendBeacon('/caixinha/lancamento/salvar-rascunho', new Blob([payload], { type: 'application/json' }));
 });
 
+=======
+>>>>>>> 4bf72fcc7a5b4239890f734e3bb81d5854b9e203
 // PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
@@ -422,6 +425,7 @@ async function iniciarPreenchimento(empresaId, empresaNome, cnpj, inscricao, tri
 }
 
 function voltarParaLista() {
+<<<<<<< HEAD
     // Salva rascunho antes de sair, depois volta para a lista
     clearTimeout(_rascunhoTimer);
     salvarRascunho(() => {
@@ -430,6 +434,12 @@ function voltarParaLista() {
         document.getElementById('view-lista').style.display = 'block';
         globalEmpresaId = null;
     });
+=======
+    document.getElementById('view-form').style.display = 'none';
+    document.getElementById('view-anexos').style.display = 'none';
+    document.getElementById('view-lista').style.display = 'block';
+    globalEmpresaId = null;
+>>>>>>> 4bf72fcc7a5b4239890f734e3bb81d5854b9e203
 }
 
 function renderizarPDF() {
@@ -518,9 +528,12 @@ function rerenderizarPagina() {
                     const fSize = Math.max(8, Math.min(alturaBase * 0.75, 14));  // entre 8pt e 14pt base
                     input.style.fontSize = (fSize * currentScale) + 'px';
 
+<<<<<<< HEAD
                     // Agendamento de rascunho ao digitar
                     input.addEventListener('input', agendarRascunho);
 
+=======
+>>>>>>> 4bf72fcc7a5b4239890f734e3bb81d5854b9e203
                     annContainer.appendChild(input);
                 });
 
