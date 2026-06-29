@@ -526,6 +526,7 @@ function rerenderizarPagina() {
 
                     // Agendamento de rascunho ao digitar
                     input.addEventListener('input', agendarRascunho);
+
                     annContainer.appendChild(input);
                 });
 
