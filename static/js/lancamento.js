@@ -48,19 +48,25 @@ function salvarRascunho(callback) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ empresa_id: globalEmpresaId, campos: campos })
     })
-    .then(r => r.json())
-    .then(data => {
-        _rascunhoEmAndamento = false;
-        if (data.status === 'ok') {
-            mostrarIndicadorRascunho();
-            // Atualiza o cache local para que ao reabrir os dados apareçam
-            valoresSalvosGlobais = campos;
-        }
-        if (callback) callback();
-    })
-    .catch(() => {
-        _rascunhoEmAndamento = false;
-        if (callback) callback();
+        .then(r => r.json())
+        .then(data => {
+            _rascunhoEmAndamento = false;
+            if (data.status === 'ok') {
+                mostrarIndicadorRascunho();
+                // Atualiza o cache local para que ao reabrir os dados apareçam
+                valoresSalvosGlobais = campos;
+            }
+            if (callback) callback();
+        })
+        .catch(() => {
+            _rascunhoEmAndamento = false;
+            if (callback) callback();
+        });
+}
+
+function salvarRascunhoManual() {
+    salvarRascunho(() => {
+        showMessage('Rascunho salvo com sucesso!', true);
     });
 }
 
@@ -112,10 +118,10 @@ function carregarGerentesLista() {
     return fetch('/caixinha/lancamento/gerentes')
         .then(r => r.json())
         .then(data => {
-            if(data.success) {
+            if (data.success) {
                 globalGerentes = data.data.map(g => g.nome);
                 const select = document.getElementById('filter-gerente');
-                if(select) {
+                if (select) {
                     // Mantenho a primeira option
                     const currentVal = select.value;
                     select.innerHTML = '<option value="Todos">Todos os Gerentes</option>';
@@ -197,18 +203,18 @@ function changeItemsPerPage() {
 function getFilteredData() {
     let filtered = {};
     globalGerentes.forEach(g => filtered[g] = []);
-    
+
     const searchStr = (document.getElementById('search-lancamento')?.value || '').toLowerCase();
 
     for (let i = 0; i < globalEmpresas.length; i++) {
         let emp = globalEmpresas[i];
         if (filtroGerente !== 'Todos' && emp.gerente !== filtroGerente) continue;
-        
+
         if (showOnlyPendentes) {
             const st = emp.status_lancamento_caixinha;
             if (st === 'conferido' || st === 'finalizado' || st === 'pendente_revisao' || st === 'revisado') continue;
         }
-        
+
         const num = (emp.numero || '').toLowerCase();
         const nom = (emp.nome || '').toLowerCase();
         if (searchStr && !nom.includes(searchStr) && !num.includes(searchStr)) continue;

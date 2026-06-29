@@ -232,12 +232,15 @@ def init_db():
                 ''')
             
             # Criar usuário admin padrão se não existir
-            cursor.execute('SELECT * FROM usuarios WHERE usuario = ?', ('admin',))
+            cursor.execute('SELECT * FROM usuarios WHERE usuario = ?', ('admin@scalcomt.com.br',))
             if not cursor.fetchone():
                 cursor.execute(
                     'INSERT INTO usuarios (usuario, senha, is_admin) VALUES (?, ?, ?)',
-                    ('admin', '123', 1)
+                    ('admin@scalcomt.com.br', 'Scalco123*', 1)
                 )
+            
+            # Remover o usuário admin genérico antigo, caso ainda exista
+            cursor.execute("DELETE FROM usuarios WHERE usuario = 'admin'")
             
             conn.commit()
     except sqlite3.Error as e:
